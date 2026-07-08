@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Rescata la Patria — El Tequendama</title>
+<style>
+/* ============================================================
+   TOKENS — Paleta "Grabado Republicano" (pergamino + grabado a tinta)
+   ============================================================ */
+:root{
+  --pergamino:      #f1e6c8;
+  --pergamino-2:    #e6d6ab;
+  --pergamino-dark: #d9c48f;
+  --tinta:          #33241a;
+  --tinta-suave:    #5b4632;
+  --oro-viejo:      #a6802c;
+  --oro-brillo:     #d9ab4a;
+  --azul-procer:    #1c3a5e;
+  --azul-procer-2:  #294f7d;
+  --rojo-libertad:  #a31621;
+  --rojo-libertad-2:#c22733;
+  --verde-paisaje:  #2f5138;
+  --verde-paisaje-2:#3f6b4b;
+  --sombra:         rgba(51,36,26,0.35);
+  --radius:         10px;
+  --font-display:   Georgia, 'Times New Roman', 'Palatino Linotype', serif;
+  --font-body:      Georgia, 'Times New Roman', serif;
+  --font-ui:        -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  color:var(--tinta);
+  background:
+    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,0.25), transparent 40%),
+    radial-gradient(ellipse at 80% 90%, rgba(0,0,0,0.06), transparent 45%),
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0px, rgba(0,0,0,0.015) 1px, transparent 1px, transparent 3px),
+    linear-gradient(160deg, var(--pergamino) 0%, var(--pergamino-2) 60%, var(--pergamino-dark) 100%);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+}
+button{font-family:var(--font-ui);cursor:pointer;border:none;}
+h1,h2,h3{font-family:var(--font-display); margin:0; letter-spacing:0.03em; font-weight:700;}
+::selection{background:var(--oro-viejo); color:var(--pergamino);}
+
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+
+/* ============================================================
+   MARCO GENERAL
+   ============================================================ */
+#app{max-width:980px;margin:0 auto;padding:14px 14px 40px;}
+
+.top-bar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:linear-gradient(180deg, var(--azul-procer-2), var(--azul-procer));
+  color:var(--pergamino);
+  border-radius:var(--radius);
+  padding:12px 18px;
+  box-shadow:0 6px 18px var(--sombra), inset 0 0 0 1px rgba(217,171,74,0.35);
+  position:relative;
+  overflow:hidden;
+}
+.top-bar::after{ /* filo dorado */
+  content:""; position:absolute; left:0; right:0; bottom:0; height:4px;
+  background:linear-gradient(90deg, var(--oro-viejo), var(--oro-brillo), var(--oro-viejo));
+}
+.brand{display:flex; align-items:center; gap:10px; min-width:0;}
+.brand svg{flex:none;width:34px;height:34px;}
+.brand-text{min-width:0;}
+.brand-text h1{font-size:clamp(15px,3vw,20px); line-height:1.15; color:var(--pergamino);}
+.brand-text span{font-family:var(--font-ui); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--oro-brillo);}
+
+.timer-box{
+  font-family:var(--font-ui); font-weight:800; font-size:clamp(15px,3.4vw,20px);
+  background:rgba(0,0,0,0.22); padding:8px 14px; border-radius:8px;
+  display:flex; align-items:center; gap:7px; white-space:nowrap;
+  border:1px solid rgba(217,171,74,0.4);
+}
+.timer-box svg{width:16px;height:16px;}
+
+.progress-track{display:flex; gap:8px; margin:14px 2px 20px;}
+.progress-dot{
+  flex:1; height:9px; border-radius:6px; background:rgba(51,36,26,0.15);
+  position:relative; overflow:hidden;
+  box-shadow:inset 0 0 0 1px rgba(51,36,26,0.15);
+}
+.progress-dot.done{background:var(--verde-paisaje);}
+.progress-dot.current{background:var(--pergamino-dark);}
+.progress-dot.current::after{
+  content:""; position:absolute; inset:0; background:linear-gradient(90deg, var(--oro-viejo), var(--rojo-libertad));
+  animation:pulseBar 1.6s ease-in-out infinite;
+}
+@keyframes pulseBar{0%,100%{opacity:.55;} 50%{opacity:1;}}
+
+.screen{display:none; animation:fadeUp .5s ease both;}
+.screen.active{display:block;}
+@keyframes fadeUp{from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);}}
+
+.parchment-panel{
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(255,255,255,0.35), transparent 55%),
+    linear-gradient(170deg, #f7efd6, var(--pergamino-2));
+  border-radius:var(--radius);
+  border:1px solid rgba(166,128,44,0.4);
+  box-shadow:0 10px 26px var(--sombra), inset 0 0 40px rgba(166,128,44,0.06);
+  padding:22px clamp(14px,4vw,32px);
+  position:relative;
+}
+.level-header{text-align:center; margin-bottom:18px;}
+.level-eyebrow{
+  font-family:var(--font-ui); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--rojo-libertad); font-weight:700; display:block; margin-bottom:6px;
+}
+.level-header h2{font-size:clamp(19px,4vw,27px); color:var(--azul-procer);}
+.level-header p{font-family:var(--font-body); font-size:clamp(14px,2.4vw,17px); color:var(--tinta-suave); max-width:640px; margin:8px auto 0; font-style:italic;}
+
+.btn{
+  font-weight:700; font-size:15px; padding:12px 22px; border-radius:8px;
+  background:linear-gradient(180deg, var(--verde-paisaje-2), var(--verde-paisaje));
+  color:#fbf3d9; box-shadow:0 5px 0 #223d29, 0 8px 14px rgba(0,0,0,0.25);
+  transition:transform .12s ease, box-shadow .12s ease;
+  min-height:48px;
+}
+.btn:active{transform:translateY(3px); box-shadow:0 2px 0 #223d29, 0 4px 8px rgba(0,0,0,0.25);}
+.btn.gold{background:linear-gradient(180deg, var(--oro-brillo), var(--oro-viejo)); color:#3a2a0d; box-shadow:0 5px 0 #7a5f1f, 0 8px 14px rgba(0,0,0,0.25);}
+.btn.gold:active{box-shadow:0 2px 0 #7a5f1f, 0 4px 8px rgba(0,0,0,0.25);}
+.btn.red{background:linear-gradient(180deg, var(--rojo-libertad-2), var(--rojo-libertad)); color:#fbe9df; box-shadow:0 5px 0 #6f0f16, 0 8px 14px rgba(0,0,0,0.25);}
+.btn.red:active{box-shadow:0 2px 0 #6f0f16, 0 4px 8px rgba(0,0,0,0.25);}
+.btn:disabled{opacity:.5; filter:grayscale(.3); cursor:not-allowed;}
+.center-row{display:flex; justify-content:center; margin-top:22px;}
+
+/* ============================================================
+   PANTALLA DE REGISTRO
+   ============================================================ */
+.registro-hero{display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;}
+.registro-hero .seal{width:96px; height:96px;}
+.registro-hero h2{font-size:clamp(22px,4.6vw,30px); color:var(--azul-procer);}
+.registro-form{width:100%; max-width:380px; display:flex; flex-direction:column; gap:14px; margin-top:8px;}
+.field-group{text-align:left;}
+.field-group label{
+  display:block; font-family:var(--font-ui); font-weight:700; font-size:12.5px;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--azul-procer); margin-bottom:5px;
+}
+.field-group input{
+  width:100%; font-family:var(--font-body); font-size:16px; padding:12px 14px;
+  border-radius:8px; border:2px solid var(--oro-viejo); background:rgba(255,255,255,.55);
+  color:var(--tinta); min-height:48px;
+}
+.field-group input:focus{outline:3px solid var(--azul-procer-2); outline-offset:1px;}
+.field-group.identidad{
+  background:rgba(255,255,255,.35); border:1px dashed var(--oro-viejo); border-radius:8px; padding:10px 14px;
+}
+.field-group.identidad .id-preview{font-family:var(--font-ui); font-size:13px; color:var(--tinta-suave); font-style:italic;}
+
+/* ============================================================
+   PANTALLA DE INICIO
+   ============================================================ */
+.intro-hero{display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px;}
+.intro-hero .seal{width:110px; height:110px;}
+.intro-hero h2{font-size:clamp(24px,5vw,34px); color:var(--azul-procer);}
+.intro-hero .sub{font-family:var(--font-ui); color:var(--rojo-libertad); font-weight:700; letter-spacing:.1em; text-transform:uppercase; font-size:13px;}
+.intro-hero p.lead{max-width:640px; font-size:clamp(15px,2.6vw,18px); color:var(--tinta-suave); font-style:italic; line-height:1.5;}
+.mission-list{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:20px 0; width:100%;}
+.mission-card{
+  background:rgba(255,255,255,0.4); border:1px solid rgba(166,128,44,.35); border-radius:8px;
+  padding:14px 10px; text-align:center; font-family:var(--font-ui);
+}
+.mission-card svg{width:30px;height:30px; margin-bottom:6px;}
+.mission-card b{display:block; font-size:12.5px; color:var(--azul-procer); text-transform:uppercase; letter-spacing:.04em;}
+
+/* ============================================================
+   NIVEL 1 — MEMORIA
+   ============================================================ */
+.memory-grid{
+  display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; perspective:1000px; margin-top:10px;
+}
+@media (max-width:640px){ .memory-grid{grid-template-columns:repeat(3,1fr);} }
+.mem-card{
+  aspect-ratio:3/4; position:relative; cursor:pointer;
+}
+.mem-inner{
+  position:absolute; inset:0; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.2,.9,.3,1.1);
+}
+.mem-card.flipped .mem-inner{transform:rotateY(180deg);}
+.mem-card.matched .mem-inner{transform:rotateY(180deg);}
+.mem-face{
+  position:absolute; inset:0; border-radius:8px; backface-visibility:hidden;
+  display:flex; align-items:center; justify-content:center; padding:6px; text-align:center;
+  box-shadow:0 4px 10px rgba(0,0,0,0.25);
+}
+.mem-front{
+  background:linear-gradient(160deg, var(--azul-procer-2), var(--azul-procer));
+  border:2px solid var(--oro-viejo);
+}
+.mem-front svg{width:46%; height:46%; opacity:.9;}
+.mem-back{
+  background:linear-gradient(160deg, #fbf3da, var(--pergamino-2));
+  border:2px solid var(--oro-viejo);
+  transform:rotateY(180deg);
+  font-family:var(--font-ui); font-weight:600; font-size:clamp(9.5px,1.7vw,12.5px); line-height:1.25; color:var(--tinta);
+}
+.mem-card.matched .mem-back{background:linear-gradient(160deg,#e3f2e6,#c9e6cf); border-color:var(--verde-paisaje);}
+.mem-card.wrong .mem-inner{animation:shakeIt .45s ease;}
+@keyframes shakeIt{0%,100%{transform:rotateY(180deg) translateX(0);}20%{transform:rotateY(180deg) translateX(-8px);}40%{transform:rotateY(180deg) translateX(8px);}60%{transform:rotateY(180deg) translateX(-5px);}80%{transform:rotateY(180deg) translateX(5px);}}
+.mem-card.def .mem-back{font-style:italic;}
+.mem-card.concept .mem-back{font-weight:800; text-transform:uppercase; font-size:clamp(9px,1.5vw,11.5px);}
+
+.hud-row{display:flex; justify-content:center; gap:22px; margin-bottom:6px; font-family:var(--font-ui); font-weight:700; color:var(--azul-procer); font-size:13.5px;}
+
+/* ============================================================
+   NIVEL 2 — CLASIFICACIÓN (drag & drop)
+   ============================================================ */
+.chest-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:20px;}
+@media (max-width:640px){ .chest-row{grid-template-columns:1fr;} }
+.chest{
+  border-radius:10px; padding:12px 8px 16px; text-align:center; min-height:110px;
+  border:3px dashed var(--oro-viejo); background:rgba(255,255,255,.28);
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:6px;
+  transition:background .2s ease, border-color .2s ease, transform .12s ease;
+}
+.chest svg{width:34px;height:34px;}
+.chest b{font-family:var(--font-ui); font-size:12px; text-transform:uppercase; letter-spacing:.03em; color:var(--azul-procer);}
+.chest .chest-count{font-family:var(--font-ui); font-size:11px; color:var(--tinta-suave);}
+.chest.drag-over{background:rgba(217,171,74,0.35); border-color:var(--rojo-libertad); transform:scale(1.02);}
+.chest.chest-crit{border-color:var(--rojo-libertad);}
+.chest.chest-nat{border-color:var(--verde-paisaje);}
+.chest.chest-pat{border-color:var(--azul-procer);}
+
+.quote-pool{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; min-height:70px;}
+.quote-card{
+  font-family:var(--font-body); font-style:italic; font-size:13.5px; line-height:1.35;
+  background:linear-gradient(160deg,#fbf3da,var(--pergamino-2)); border:2px solid var(--oro-viejo);
+  border-radius:8px; padding:12px 14px; width:190px; box-shadow:0 4px 8px rgba(0,0,0,.2);
+  touch-action:none; user-select:none; cursor:grab; position:relative;
+}
+.quote-card.dragging{opacity:.35;}
+.quote-card.placed{display:none;}
+.quote-card.wrong-shake{animation:shakeIt2 .4s ease;}
+@keyframes shakeIt2{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px) rotate(-2deg);}75%{transform:translateX(8px) rotate(2deg);}}
+.ghost-card{position:fixed; pointer-events:none; z-index:999; opacity:.9;}
+
+/* ============================================================
+   NIVEL 3 — MÉTRICA
+   ============================================================ */
+.stanza-box{
+  background:linear-gradient(160deg,#fbf3da,var(--pergamino-2)); border:2px solid var(--oro-viejo);
+  border-radius:10px; padding:20px clamp(14px,4vw,30px); margin:14px 0 20px; text-align:center;
+  font-family:var(--font-body); font-style:italic; font-size:clamp(15px,2.6vw,18.5px); line-height:1.75; color:var(--tinta);
+  position:relative;
+}
+.stanza-box::before{content:"“"; font-family:var(--font-display); font-size:56px; color:var(--oro-viejo); position:absolute; top:-14px; left:10px; opacity:.5;}
+.stanza-source{font-family:var(--font-ui); font-style:normal; font-size:11.5px; letter-spacing:.05em; color:var(--tinta-suave); margin-top:10px; display:block;}
+.metric-q{font-family:var(--font-ui); font-weight:700; color:var(--azul-procer); text-align:center; margin-bottom:12px; font-size:clamp(14px,2.4vw,16.5px);}
+.option-row{display:grid; grid-template-columns:repeat(3,1fr); gap:10px;}
+@media (max-width:640px){ .option-row{grid-template-columns:1fr;} }
+.option-card{
+  font-family:var(--font-ui); font-weight:700; font-size:14px; color:var(--azul-procer);
+  background:rgba(255,255,255,.4); border:2px solid var(--oro-viejo); border-radius:8px;
+  padding:16px 10px; text-align:center; transition:transform .12s ease, background .15s ease;
+  min-height:56px;
+}
+.option-card:hover{transform:translateY(-2px); background:rgba(217,171,74,.25);}
+.option-card.correct{background:#cdeccf; border-color:var(--verde-paisaje); color:var(--verde-paisaje); animation:popGood .4s ease;}
+.option-card.incorrect{background:#f4cfd0; border-color:var(--rojo-libertad); color:var(--rojo-libertad); animation:shakeIt2 .4s ease;}
+@keyframes popGood{0%{transform:scale(1);}50%{transform:scale(1.06);}100%{transform:scale(1);}}
+.q-progress{text-align:center; font-family:var(--font-ui); font-size:12.5px; color:var(--tinta-suave); margin-bottom:8px;}
+
+/* ============================================================
+   NIVEL 4 — BATALLA DE TRIVIA
+   ============================================================ */
+.duel-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px;}
+.duel-score{font-family:var(--font-ui); font-weight:800; color:var(--verde-paisaje); font-size:14px;}
+.duel-timer-wrap{flex:1; max-width:220px; height:12px; background:rgba(51,36,26,.15); border-radius:8px; overflow:hidden; margin:0 10px;}
+.duel-timer-bar{height:100%; background:linear-gradient(90deg,var(--rojo-libertad),var(--oro-viejo)); width:100%; transition:width .2s linear;}
+.duel-card{
+  background:linear-gradient(160deg,#fff8e6,var(--pergamino-2)); border:2px solid var(--azul-procer);
+  border-radius:10px; padding:18px clamp(14px,4vw,26px); text-align:center;
+  font-family:var(--font-body); font-size:clamp(15px,2.6vw,18px); color:var(--tinta); margin-bottom:16px;
+  box-shadow:0 6px 14px rgba(0,0,0,.15);
+}
+.duel-options{display:grid; gap:10px;}
+.duel-opt{
+  font-family:var(--font-ui); font-weight:600; font-size:14.5px; text-align:left;
+  background:rgba(255,255,255,.4); border:2px solid var(--oro-viejo); border-radius:8px;
+  padding:14px 16px; color:var(--tinta); min-height:52px; transition:transform .1s ease, background .15s ease;
+}
+.duel-opt:hover{background:rgba(217,171,74,.28);}
+.duel-opt.correct{background:#cdeccf; border-color:var(--verde-paisaje); color:var(--verde-paisaje);}
+.duel-opt.incorrect{background:#f4cfd0; border-color:var(--rojo-libertad); color:var(--rojo-libertad);}
+
+/* ============================================================
+   NIVEL 5 — ROMPECABEZAS DE IDEAS
+   ============================================================ */
+.order-list{display:flex; flex-direction:column; gap:10px; margin:16px 0;}
+.order-card{
+  display:flex; align-items:center; gap:12px;
+  background:linear-gradient(160deg,#fbf3da,var(--pergamino-2)); border:2px solid var(--oro-viejo);
+  border-radius:8px; padding:12px 14px; box-shadow:0 3px 8px rgba(0,0,0,.15);
+}
+.order-num{
+  flex:none; width:30px; height:30px; border-radius:50%; background:var(--azul-procer); color:var(--pergamino);
+  display:flex; align-items:center; justify-content:center; font-family:var(--font-ui); font-weight:800; font-size:14px;
+}
+.order-text{flex:1; font-family:var(--font-body); font-size:14.5px; line-height:1.35;}
+.order-btns{display:flex; flex-direction:column; gap:4px;}
+.order-btns button{
+  width:34px; height:26px; border-radius:5px; background:var(--oro-viejo); color:#fff; font-weight:800;
+  display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+.order-btns button:disabled{opacity:.3; cursor:not-allowed;}
+.order-card.correct-slot{border-color:var(--verde-paisaje); background:linear-gradient(160deg,#e6f5e8,#cfe9d2);}
+.order-card.wrong-slot{animation:shakeIt2 .4s ease;}
+
+/* ============================================================
+   VICTORIA
+   ============================================================ */
+.victory-wrap{text-align:center;}
+.victory-wrap .seal{width:90px; height:90px; margin-bottom:8px;}
+.victory-wrap h2{font-size:clamp(24px,5vw,32px); color:var(--rojo-libertad);}
+.video-wrap{position:relative; width:100%; padding-top:56.25%; border-radius:10px; overflow:hidden; margin:18px 0; border:3px solid var(--oro-viejo); box-shadow:0 8px 20px var(--sombra); background:linear-gradient(180deg,#f6d98a 0%,#f0a869 35%,#c96b4a 60%,#5b3a3a 100%);}
+.anim-scene{position:absolute; inset:0; overflow:hidden;}
+.anim-scene svg{position:absolute; inset:0; width:100%; height:100%;}
+.sun{animation:sunRise 8s ease-in-out infinite alternate;}
+@keyframes sunRise{from{transform:translateY(18px);} to{transform:translateY(-6px);}}
+.cloud{animation:cloudDrift linear infinite;}
+.cloud.c1{animation-duration:26s;}
+.cloud.c2{animation-duration:34s; animation-delay:-8s;}
+.cloud.c3{animation-duration:20s; animation-delay:-4s;}
+@keyframes cloudDrift{from{transform:translateX(-60px);} to{transform:translateX(460px);}}
+.bird{animation:birdFly linear infinite;}
+.bird.b1{animation-duration:9s;}
+.bird.b2{animation-duration:12s; animation-delay:-3s;}
+.water-fall{stroke-dasharray:6 5; animation:waterFlow .5s linear infinite;}
+@keyframes waterFlow{to{stroke-dashoffset:-11;}}
+.mist{animation:mistPulse 3.2s ease-in-out infinite;}
+@keyframes mistPulse{0%,100%{opacity:.35;} 50%{opacity:.7;}}
+@keyframes birdFly{from{transform:translateX(-30px) translateY(0);} to{transform:translateX(430px) translateY(-10px);}}
+.flag-cloth{animation:flagWave 1.8s ease-in-out infinite;}
+@keyframes flagWave{0%,100%{transform:skewY(0deg) scaleY(1);} 50%{transform:skewY(2.5deg) scaleY(0.98);}}
+.scene-caption{
+  position:absolute; left:0; right:0; bottom:10px; text-align:center;
+  font-family:var(--font-ui); font-weight:700; font-size:clamp(11px,2.6vw,15px);
+  color:#fff8e6; text-shadow:0 2px 6px rgba(0,0,0,.6); padding:0 14px;
+  opacity:0; animation:captionCycle 12s infinite;
+}
+.scene-caption.cap1{animation-delay:0s;}
+.scene-caption.cap2{animation-delay:4s;}
+.scene-caption.cap3{animation-delay:8s;}
+@keyframes captionCycle{
+  0%{opacity:0; transform:translateY(8px);}
+  4%{opacity:1; transform:translateY(0);}
+  30%{opacity:1;}
+  34%{opacity:0; transform:translateY(-8px);}
+  100%{opacity:0;}
+}
+.ranking-table{width:100%; border-collapse:collapse; margin-top:10px; font-family:var(--font-ui); font-size:13.5px;}
+.ranking-table th{background:var(--azul-procer); color:var(--pergamino); padding:8px; text-align:left; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em;}
+.ranking-table td{padding:8px; border-bottom:1px solid rgba(166,128,44,.3);}
+.ranking-table tr:nth-child(even){background:rgba(255,255,255,.35);}
+.ranking-table tr.you{background:rgba(166,128,44,.28); font-weight:800;}
+.ranking-note{font-size:11.5px; color:var(--tinta-suave); font-family:var(--font-ui); margin-top:8px; font-style:italic;}
+
+/* Confeti */
+#confetti-canvas{position:fixed; inset:0; pointer-events:none; z-index:50;}
+
+/* Toast feedback */
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px);
+  background:var(--azul-procer); color:var(--pergamino); padding:11px 20px; border-radius:8px;
+  font-family:var(--font-ui); font-weight:700; font-size:13.5px; box-shadow:0 8px 20px rgba(0,0,0,.3);
+  opacity:0; transition:opacity .3s ease, transform .3s ease; z-index:100; max-width:88vw; text-align:center;
+}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.toast.ok{background:var(--verde-paisaje);}
+.toast.bad{background:var(--rojo-libertad);}
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+<div id="toast" class="toast"></div>
+
+<div id="app">
+
+  <div class="top-bar">
+    <div class="brand">
+      <!-- Sello / laurel grabado -->
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="29" stroke="#d9ab4a" stroke-width="2.5"/>
+        <path d="M32 14 L36 26 L48 26 L38 34 L42 46 L32 38 L22 46 L26 34 L16 26 L28 26 Z" fill="#d9ab4a"/>
+      </svg>
+      <div class="brand-text">
+        <h1>Rescata la Patria</h1>
+        <span>El Tequendama · José Joaquín Ortiz</span>
+      </div>
+    </div>
+    <div class="timer-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#d9ab4a" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+      <span id="timer-display">00:00</span>
+    </div>
+  </div>
+
+  <div class="progress-track" id="progress-track"></div>
+
+  <!-- ============ PANTALLA DE REGISTRO ============ -->
+  <section class="screen active" id="screen-registro">
+    <div class="parchment-panel registro-hero">
+      <svg class="seal" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="55" stroke="#a6802c" stroke-width="3"/>
+        <circle cx="60" cy="60" r="46" stroke="#a6802c" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <path d="M40 70 L60 40 L80 70 Z" stroke="#33241a" stroke-width="1.6" fill="none"/>
+        <circle cx="60" cy="58" r="6" stroke="#33241a" stroke-width="1.4" fill="none"/>
+      </svg>
+      <span class="sub" style="font-family:var(--font-ui); color:var(--rojo-libertad); font-weight:700; letter-spacing:.1em; text-transform:uppercase; font-size:12.5px;">Acta de alistamiento</span>
+      <h2>Regístrate para la gesta</h2>
+      <p style="font-family:var(--font-body); font-style:italic; color:var(--tinta-suave); max-width:440px;">Antes de comenzar, deja tu nombre en el acta. Aparecerá en el Ranking de Próceres al final de la misión.</p>
+
+      <div class="registro-form" id="registro-form">
+        <div class="field-group">
+          <label for="input-nombre">Nombre del estudiante</label>
+          <input type="text" id="input-nombre" placeholder="Ej: Ana Sofía Martínez" maxlength="40" autocomplete="off">
+        </div>
+        <div class="field-group">
+          <label for="input-curso">Curso (opcional)</label>
+          <input type="text" id="input-curso" placeholder="Ej: 8°B" maxlength="20" autocomplete="off">
+        </div>
+        <div class="field-group identidad">
+          <span class="id-preview" id="id-preview">Escribe tu nombre para continuar…</span>
+        </div>
+        <button type="button" class="btn gold" id="btn-registrar" disabled>Firmar el acta y continuar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANTALLA DE INICIO ============ -->
+  <section class="screen" id="screen-intro">
+    <div class="parchment-panel intro-hero">
+      <svg class="seal" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="55" stroke="#a6802c" stroke-width="3"/>
+        <circle cx="60" cy="60" r="46" stroke="#a6802c" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <path d="M60 30 C40 45 40 75 60 95 C80 75 80 45 60 30 Z" stroke="#33241a" stroke-width="1.6" fill="none"/>
+        <path d="M45 55 Q60 45 75 55" stroke="#33241a" stroke-width="1.4" fill="none"/>
+        <path d="M42 65 Q60 78 78 65" stroke="#33241a" stroke-width="1.4" fill="none"/>
+      </svg>
+      <span class="sub">Un juego de cartas · Literatura de la Independencia</span>
+      <h2>¿Lograrás rescatar la memoria de la patria?</h2>
+      <p class="lead">Colombia, siglo XIX. La pluma se ha convertido en arma. Debes superar cinco pruebas para comprender cómo la literatura —y el poema "El Tequendama" de José Joaquín Ortiz— ayudó a forjar el sentimiento de libertad y la identidad de una nación naciente.</p>
+
+      <div class="mission-list">
+        <div class="mission-card">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="6" y="8" width="28" height="24" rx="2" stroke="#1c3a5e" stroke-width="2"/><path d="M12 16h16M12 22h10" stroke="#1c3a5e" stroke-width="2"/></svg>
+          <b>Nivel 1</b> Memoria del contexto
+        </div>
+        <div class="mission-card">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="5" y="20" width="10" height="12" stroke="#a31621" stroke-width="2"/><rect x="15" y="20" width="10" height="12" stroke="#2f5138" stroke-width="2"/><rect x="25" y="20" width="10" height="12" stroke="#1c3a5e" stroke-width="2"/></svg>
+          <b>Nivel 2</b> Baúles de la patria
+        </div>
+        <div class="mission-card">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M8 30 C12 15 16 30 20 15 C24 30 28 15 32 30" stroke="#1c3a5e" stroke-width="2" fill="none"/></svg>
+          <b>Nivel 3</b> Métrica del poema
+        </div>
+        <div class="mission-card">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M20 6 L23 16 H33 L25 22 L28 32 L20 26 L12 32 L15 22 L7 16 H17 Z" stroke="#a6802c" stroke-width="1.6" fill="none"/></svg>
+          <b>Nivel 4</b> Batalla de trivia
+        </div>
+        <div class="mission-card">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="13" stroke="#2f5138" stroke-width="2"/><path d="M20 12v8l6 4" stroke="#2f5138" stroke-width="2"/></svg>
+          <b>Nivel 5</b> Rompecabezas de ideas
+        </div>
+      </div>
+
+      <button class="btn gold" id="btn-start">⚔ Comenzar la gesta</button>
+    </div>
+  </section>
+
+  <!-- ============ NIVEL 1 ============ -->
+  <section class="screen" id="screen-1">
+    <div class="parchment-panel">
+      <div class="level-header">
+        <span class="level-eyebrow">Nivel 1 · Memoria</span>
+        <h2>Contexto político y social</h2>
+        <p>Encuentra cada concepto con su definición histórica. Voltea dos cartas por turno.</p>
+      </div>
+      <div class="hud-row"><span id="mem-pairs">Parejas: 0 / 6</span><span id="mem-tries">Intentos: 0</span></div>
+      <div class="memory-grid" id="memory-grid"></div>
+    </div>
+  </section>
+
+  <!-- ============ NIVEL 2 ============ -->
+  <section class="screen" id="screen-2">
+    <div class="parchment-panel">
+      <div class="level-header">
+        <span class="level-eyebrow">Nivel 2 · Clasificación</span>
+        <h2>Los pilares temáticos</h2>
+        <p>Arrastra cada fragmento hasta el baúl de la patria que le corresponda.</p>
+      </div>
+      <div class="chest-row" id="chest-row">
+        <div class="chest chest-crit" data-cat="critica">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M8 34 V16 L20 8 L32 16 V34 Z" stroke="#a31621" stroke-width="2"/><path d="M8 22h24" stroke="#a31621" stroke-width="2"/></svg>
+          <b>Crítica a España</b>
+          <span class="chest-count">0 / 3</span>
+        </div>
+        <div class="chest chest-nat" data-cat="naturaleza">
+          <svg viewBox="0 0 40 40" fill="none"><path d="M6 30 C10 18 14 30 18 16 C22 30 26 18 30 30 H6Z" stroke="#2f5138" stroke-width="2"/></svg>
+          <b>Naturaleza / Indígena</b>
+          <span class="chest-count">0 / 3</span>
+        </div>
+        <div class="chest chest-pat" data-cat="patrio">
+          <svg viewBox="0 0 40 40" fill="none"><rect x="10" y="8" width="20" height="14" stroke="#1c3a5e" stroke-width="2"/><path d="M20 22v10" stroke="#1c3a5e" stroke-width="2"/><path d="M12 32h16" stroke="#1c3a5e" stroke-width="2"/></svg>
+          <b>Sentimiento Patrio</b>
+          <span class="chest-count">0 / 3</span>
+        </div>
+      </div>
+      <div class="quote-pool" id="quote-pool"></div>
+    </div>
+  </section>
+
+  <!-- ============ NIVEL 3 ============ -->
+  <section class="screen" id="screen-3">
+    <div class="parchment-panel">
+      <div class="level-header">
+        <span class="level-eyebrow">Nivel 3 · Análisis</span>
+        <h2>Descifrando "El Tequendama"</h2>
+        <p>Observa la estrofa y elige la carta que analiza correctamente su estructura.</p>
+      </div>
+      <div class="stanza-box">
+        Rugiente el Tequendama se levanta,<br>
+        y en su caída eterna se derrama;<br>
+        la roca firme al cielo se adelanta,<br>
+        cual pueblo libre que a su Dios se llama.
+        <span class="stanza-source">— estrofa de práctica inspirada en "El Tequendama", José Joaquín Ortiz (1814–1892)</span>
+      </div>
+      <div class="q-progress" id="l3-progress">Pregunta 1 de 4</div>
+      <div class="metric-q" id="l3-question"></div>
+      <div class="option-row" id="l3-options"></div>
+    </div>
+  </section>
+
+  <!-- ============ NIVEL 4 ============ -->
+  <section class="screen" id="screen-4">
+    <div class="parchment-panel">
+      <div class="level-header">
+        <span class="level-eyebrow">Nivel 4 · Duelo</span>
+        <h2>Batalla de preguntas</h2>
+        <p>Responde antes de que se agote el tiempo de cada carta.</p>
+      </div>
+      <div class="duel-header">
+        <span class="duel-score" id="duel-score">Aciertos: 0 / 5</span>
+        <div class="duel-timer-wrap"><div class="duel-timer-bar" id="duel-timer-bar"></div></div>
+      </div>
+      <div class="duel-card" id="duel-question"></div>
+      <div class="duel-options" id="duel-options"></div>
+    </div>
+  </section>
+
+  <!-- ============ NIVEL 5 ============ -->
+  <section class="screen" id="screen-5">
+    <div class="parchment-panel">
+      <div class="level-header">
+        <span class="level-eyebrow">Nivel 5 · Síntesis</span>
+        <h2>La construcción de la identidad</h2>
+        <p>Ordena las premisas según la lógica que explica cómo la literatura ayudó a fundar la República.</p>
+      </div>
+      <div class="order-list" id="order-list"></div>
+      <div class="center-row"><button class="btn gold" id="btn-check-order">Verificar orden</button></div>
+    </div>
+  </section>
+
+  <!-- ============ VICTORIA ============ -->
+  <section class="screen" id="screen-victory">
+    <div class="parchment-panel victory-wrap">
+      <svg class="seal" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="55" stroke="#a6802c" stroke-width="3"/>
+        <path d="M60 30 C40 45 40 75 60 95 C80 75 80 45 60 30 Z" stroke="#33241a" stroke-width="1.6" fill="none"/>
+      </svg>
+      <span class="level-eyebrow">¡La patria ha sido rescatada!</span>
+      <h2>Has comprendido el legado de "El Tequendama"</h2>
+      <p style="font-family:var(--font-body); font-style:italic; color:var(--tinta-suave); max-width:620px; margin:8px auto 0;">Tu tiempo final quedó registrado en el Ranking de Próceres. Disfruta esta animación conmemorativa de la Independencia de Colombia.</p>
+
+      <div class="video-wrap">
+        <div class="anim-scene">
+          <svg viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+            <!-- cielo de amanecer -->
+            <rect x="0" y="0" width="400" height="220" fill="url(#skyGrad)"/>
+            <defs>
+              <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#f6d98a"/>
+                <stop offset="45%" stop-color="#f0a869"/>
+                <stop offset="75%" stop-color="#c96b4a"/>
+                <stop offset="100%" stop-color="#4a3040"/>
+              </linearGradient>
+            </defs>
+            <circle class="sun" cx="90" cy="150" r="34" fill="#fff3c4"/>
+            <g class="cloud c1" fill="#fff6e2" opacity="0.85"><ellipse cx="60" cy="40" rx="26" ry="10"/><ellipse cx="82" cy="34" rx="18" ry="8"/></g>
+            <g class="cloud c2" fill="#fff6e2" opacity="0.7"><ellipse cx="150" cy="60" rx="22" ry="9"/><ellipse cx="170" cy="55" rx="15" ry="7"/></g>
+            <g class="cloud c3" fill="#fff6e2" opacity="0.75"><ellipse cx="260" cy="35" rx="24" ry="9"/></g>
+            <path class="bird b1" d="M0 90 l6 -5 l6 5 l6 -5 l6 5" stroke="#33241a" stroke-width="1.6" fill="none"/>
+            <path class="bird b2" d="M0 105 l5 -4 l5 4 l5 -4 l5 4" stroke="#33241a" stroke-width="1.4" fill="none"/>
+            <!-- cordillera -->
+            <path d="M0 160 L40 120 L70 150 L110 100 L150 155 L190 115 L230 160 L270 125 L310 158 L340 130 L400 160 L400 220 L0 220 Z" fill="#2f5138"/>
+            <path d="M0 175 L50 145 L90 170 L140 135 L190 178 L240 145 L290 178 L340 150 L400 178 L400 220 L0 220 Z" fill="#233f2c"/>
+            <!-- salto del Tequendama -->
+            <g>
+              <rect x="185" y="70" width="26" height="110" fill="#1a2e35"/>
+              <line class="water-fall" x1="190" y1="72" x2="190" y2="178" stroke="#eaf6fb" stroke-width="3" stroke-linecap="round"/>
+              <line class="water-fall" x1="198" y1="72" x2="198" y2="178" stroke="#dcf0f7" stroke-width="3" stroke-linecap="round" style="animation-delay:-.15s"/>
+              <line class="water-fall" x1="206" y1="72" x2="206" y2="178" stroke="#eaf6fb" stroke-width="3" stroke-linecap="round" style="animation-delay:-.3s"/>
+              <ellipse class="mist" cx="198" cy="180" rx="26" ry="8" fill="#ffffff"/>
+            </g>
+            <!-- asta y bandera -->
+            <g transform="translate(300,95)">
+              <rect x="-2" y="0" width="4" height="85" fill="#5b4632"/>
+              <circle cx="0" cy="-3" r="4" fill="#d9ab4a"/>
+              <g class="flag-cloth" style="transform-origin:0px 6px;">
+                <rect x="2" y="4" width="46" height="9" fill="#e8c93a"/>
+                <rect x="2" y="13" width="46" height="9" fill="#1c3a5e"/>
+                <rect x="2" y="22" width="46" height="9" fill="#a31621"/>
+              </g>
+            </g>
+            <!-- siluetas celebrando -->
+            <g fill="#20140f">
+              <path d="M60 178 q3 -14 8 -14 q5 0 8 14 z"/>
+              <path d="M50 178 l4 -10 M76 178 l4 -10"/>
+              <path d="M100 178 q3 -16 8 -16 q5 0 8 16 z"/>
+            </g>
+          </svg>
+          <span class="scene-caption cap1">1810 — nace el sueño de un pueblo libre</span>
+          <span class="scene-caption cap2">La pluma y el verso encienden la Independencia</span>
+          <span class="scene-caption cap3">Hoy honramos esa memoria, prócer</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:16px; color:var(--azul-procer); margin-top:6px;">🏆 Ranking de Próceres</h3>
+      <table class="ranking-table">
+        <thead><tr><th>#</th><th>Estudiante</th><th>Tiempo</th></tr></thead>
+        <tbody id="ranking-body"></tbody>
+      </table>
+      <p class="ranking-note" id="ranking-note"></p>
+
+      <div class="center-row"><button class="btn" id="btn-replay">Jugar de nuevo</button></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ================================================================
+   DATOS PEDAGÓGICOS — edítalos aquí para cambiar preguntas/respuestas
+   ================================================================ */
+
+// NIVEL 1: parejas concepto ↔ definición (6 parejas = 12 cartas)
+const NIVEL1_PARES = [
+  { concepto:"Función de la literatura", definicion:"Medio para difundir ideales revolucionarios y forjar identidad nacional." },
+  { concepto:"Contexto histórico",        definicion:"Época de lucha por la independencia frente al dominio de la corona española." },
+  { concepto:"Búsqueda de identidad",     definicion:"Necesidad de definir una voz propia americana, distinta de la europea." },
+  { concepto:"Sentido político",          definicion:"Las palabras se convierten en herramienta para inspirar la libertad del pueblo." },
+  { concepto:"Héroe literario",           definicion:"Figura que encarna el valor, el sacrificio y el amor por la patria." },
+  { concepto:"Paisaje americano",         definicion:"La naturaleza como símbolo de grandeza y libertad del nuevo continente." }
+];
+
+// NIVEL 2: fragmentos a clasificar. cat: "critica" | "naturaleza" | "patrio"
+const NIVEL2_FRAGMENTOS = [
+  { texto:"Largos años de un yugo impuesto por manos extrañas oprimieron esta tierra.", cat:"critica" },
+  { texto:"La corona lejana gobernó sin escuchar jamás la voz del pueblo americano.", cat:"critica" },
+  { texto:"Cadenas forjadas al otro lado del mar sujetaron nuestra voluntad.", cat:"critica" },
+  { texto:"El Tequendama ruge con la fuerza de mil truenos entre montañas verdes.", cat:"naturaleza" },
+  { texto:"El indígena, hijo primero de esta tierra, guarda su memoria en el viento.", cat:"naturaleza" },
+  { texto:"Los Andes visten de niebla y esmeralda el rostro eterno de América.", cat:"naturaleza" },
+  { texto:"La sangre de los próceres se volvió semilla de una patria nueva.", cat:"patrio" },
+  { texto:"Bajo un mismo cielo, los hijos de la libertad juraron no doblegarse.", cat:"patrio" },
+  { texto:"El nombre de la patria se pronuncia con el mismo fervor que el de una madre.", cat:"patrio" }
+];
+
+// NIVEL 3: preguntas de métrica sobre la estrofa mostrada
+const NIVEL3_PREGUNTAS = [
+  { pregunta:"¿Qué tipo de verso predomina, según su número de sílabas?",
+    opciones:["Arte menor (8 sílabas o menos)", "Arte mayor (más de 8 sílabas)", "Verso libre, sin medida fija"], correcta:1 },
+  { pregunta:"¿Qué tipo de rima presentan los versos 1-3 y 2-4 ('levanta/adelanta', 'derrama/llama')?",
+    opciones:["Rima asonante", "Ausencia de rima", "Rima consonante"], correcta:2 },
+  { pregunta:"Al decir que la roca 'se adelanta' y el río 'se levanta' como si tuvieran voluntad propia, ¿qué recurso se usa?",
+    opciones:["Personificación", "Hipérbole", "Comparación"], correcta:0 },
+  { pregunta:"En 'al cielo se adelanta', ¿qué figura une la vocal final de 'cielo' con la inicial de 'se' en una sola sílaba?",
+    opciones:["Diéresis", "Hiato", "Sinalefa"], correcta:2 }
+];
+
+// NIVEL 4: trivia (5 preguntas, 3 opciones cada una)
+const NIVEL4_TRIVIA = [
+  { pregunta:"¿Qué simboliza principalmente la fuerza y la caída del Salto del Tequendama en la poesía de la Independencia?",
+    opciones:["La grandeza indomable de la naturaleza americana y el ansia de libertad", "La tristeza personal del autor", "La superioridad del paisaje europeo"], correcta:0 },
+  { pregunta:"¿Cómo se llama la figura literaria que atribuye cualidades humanas a elementos naturales, como el río o la montaña?",
+    opciones:["Hipérbaton", "Personificación", "Metonimia"], correcta:1 },
+  { pregunta:"¿A qué género poético pertenece una composición grandilocuente que exalta un lugar o un hecho sublime, como 'El Tequendama'?",
+    opciones:["Soneto", "Romance", "Oda"], correcta:2 },
+  { pregunta:"¿Qué papel cumplió la poesía patriótica durante la Independencia de Colombia?",
+    opciones:["Difundir ideales de libertad y fortalecer el sentimiento nacional", "Servir solo como entretenimiento sin propósito", "Promover el regreso al dominio español"], correcta:0 },
+  { pregunta:"José Joaquín Ortiz, autor de 'El Tequendama', escribió su obra en:",
+    opciones:["Siglo XVI", "Siglo XIX", "Siglo XX"], correcta:1 }
+];
+
+// NIVEL 5: premisas en su ORDEN LÓGICO CORRECTO (se mostrarán mezcladas)
+const NIVEL5_ORDEN_CORRECTO = [
+  "Los escritores comenzaron a cuestionar el dominio español y a imaginar una nación distinta.",
+  "La exaltación del paisaje americano y del pasado indígena dio a los criollos una identidad propia.",
+  "Los poemas y textos difundieron los ideales de libertad entre el pueblo y los próceres.",
+  "Esa identidad y esos ideales impulsaron la lucha que llevó a la fundación de la República de Colombia."
+];
+
+/* ================================================================
+   ESTADO GLOBAL Y CRONÓMETRO
+   ================================================================ */
+const gameState = {
+  currentLevel: 0, // 0 = intro
+  startTime: null,
+  timerInterval: null,
+  elapsedSeconds: 0,
+  playerName: "",
+  playerCurso: ""
+};
+const TOTAL_LEVELS = 5;
+
+function pad(n){ return n.toString().padStart(2,"0"); }
+function formatTime(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  return pad(m)+":"+pad(s);
+}
+function startTimer(){
+  if(gameState.timerInterval) return;
+  gameState.startTime = Date.now() - gameState.elapsedSeconds*1000;
+  gameState.timerInterval = setInterval(()=>{
+    gameState.elapsedSeconds = Math.floor((Date.now()-gameState.startTime)/1000);
+    document.getElementById("timer-display").textContent = formatTime(gameState.elapsedSeconds);
+  }, 250);
+}
+function stopTimer(){
+  clearInterval(gameState.timerInterval);
+  gameState.timerInterval = null;
+}
+
+function showToast(msg, kind){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (kind ? " "+kind : "");
+  clearTimeout(showToast._h);
+  showToast._h = setTimeout(()=> t.classList.remove("show"), 1600);
+}
+
+function renderProgress(){
+  const track = document.getElementById("progress-track");
+  track.innerHTML = "";
+  for(let i=1;i<=TOTAL_LEVELS;i++){
+    const dot = document.createElement("div");
+    dot.className = "progress-dot" + (i < gameState.currentLevel ? " done" : (i === gameState.currentLevel ? " current" : ""));
+    track.appendChild(dot);
+  }
+}
+
+function goToScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ================================================================
+   PANTALLA DE REGISTRO
+   ================================================================ */
+const inputNombre = document.getElementById("input-nombre");
+const inputCurso = document.getElementById("input-curso");
+const btnRegistrar = document.getElementById("btn-registrar");
+const idPreview = document.getElementById("id-preview");
+
+inputNombre.addEventListener("input", ()=>{
+  const val = inputNombre.value.trim();
+  btnRegistrar.disabled = val.length === 0;
+  idPreview.textContent = val.length
+    ? "Se alistará como: " + val + (inputCurso.value.trim() ? " · " + inputCurso.value.trim() : "")
+    : "Escribe tu nombre para continuar…";
+});
+inputCurso.addEventListener("input", ()=>{
+  const val = inputNombre.value.trim();
+  if(val.length){
+    idPreview.textContent = "Se alistará como: " + val + (inputCurso.value.trim() ? " · " + inputCurso.value.trim() : "");
+  }
+});
+
+function confirmarRegistro(){
+  const nombre = inputNombre.value.trim();
+  if(!nombre) return;
+  gameState.playerName = nombre;
+  gameState.playerCurso = inputCurso.value.trim();
+  goToScreen("screen-intro");
+}
+document.getElementById("btn-registrar").addEventListener("click", confirmarRegistro);
+[inputNombre, inputCurso].forEach(inp=>{
+  inp.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" && !btnRegistrar.disabled){
+      e.preventDefault();
+      confirmarRegistro();
+    }
+  });
+});
+
+/* ================================================================
+   PANTALLA DE INICIO
+   ================================================================ */
+document.getElementById("btn-start").addEventListener("click", ()=>{
+  gameState.currentLevel = 1;
+  renderProgress();
+  startTimer();
+  goToScreen("screen-1");
+  initNivel1();
+});
+
+/* ================================================================
+   NIVEL 1 — MEMORIA
+   ================================================================ */
+let mem = { flipped:[], matched:0, tries:0, locked:false };
+
+function initNivel1(){
+  mem = { flipped:[], matched:0, tries:0, locked:false };
+  document.getElementById("mem-pairs").textContent = "Parejas: 0 / "+NIVEL1_PARES.length;
+  document.getElementById("mem-tries").textContent = "Intentos: 0";
+
+  let cards = [];
+  NIVEL1_PARES.forEach((p, idx)=>{
+    cards.push({ pairId: idx, type:"concept", text:p.concepto });
+    cards.push({ pairId: idx, type:"def", text:p.definicion });
+  });
+  cards = shuffle(cards);
+
+  const grid = document.getElementById("memory-grid");
+  grid.innerHTML = "";
+  cards.forEach((c, i)=>{
+    const el = document.createElement("div");
+    el.className = "mem-card " + c.type;
+    el.dataset.pairId = c.pairId;
+    el.dataset.type = c.type;
+    el.innerHTML = `
+      <div class="mem-inner">
+        <div class="mem-face mem-front">
+          <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" stroke="#d9ab4a" stroke-width="2"/><path d="M20 10l3 8h8l-6.5 5 2.5 8-7-5-7 5 2.5-8L9 18h8z" fill="#d9ab4a"/></svg>
+        </div>
+        <div class="mem-face mem-back">${c.text}</div>
+      </div>`;
+    el.addEventListener("click", ()=> onMemClick(el));
+    grid.appendChild(el);
+  });
+}
+
+function onMemClick(el){
+  if(mem.locked) return;
+  if(el.classList.contains("flipped") || el.classList.contains("matched")) return;
+  if(mem.flipped.length >= 2) return;
+
+  el.classList.add("flipped");
+  mem.flipped.push(el);
+
+  if(mem.flipped.length === 2){
+    mem.tries++;
+    document.getElementById("mem-tries").textContent = "Intentos: "+mem.tries;
+    const [a,b] = mem.flipped;
+    mem.locked = true;
+    const isMatch = a.dataset.pairId === b.dataset.pairId && a.dataset.type !== b.dataset.type;
+    if(isMatch){
+      setTimeout(()=>{
+        a.classList.add("matched"); b.classList.add("matched");
+        mem.matched++;
+        document.getElementById("mem-pairs").textContent = "Parejas: "+mem.matched+" / "+NIVEL1_PARES.length;
+        showToast("¡Pareja correcta!", "ok");
+        mem.flipped = []; mem.locked = false;
+        if(mem.matched === NIVEL1_PARES.length){
+          setTimeout(()=> advanceLevel(2), 700);
+        }
+      }, 350);
+    } else {
+      a.classList.add("wrong"); b.classList.add("wrong");
+      showToast("Esa pareja no coincide, intenta otra vez", "bad");
+      setTimeout(()=>{
+        a.classList.remove("flipped","wrong"); b.classList.remove("flipped","wrong");
+        mem.flipped = []; mem.locked = false;
+      }, 850);
+    }
+  }
+}
+
+/* ================================================================
+   NIVEL 2 — CLASIFICACIÓN (drag & drop con Pointer Events, táctil y desktop)
+   ================================================================ */
+let l2 = { placed:0, total:0 };
+
+function initNivel2(){
+  l2 = { placed:0, total:NIVEL2_FRAGMENTOS.length };
+  document.querySelectorAll(".chest-count").forEach(c=> c.textContent = "0 / 3");
+  document.querySelectorAll(".chest").forEach(c=> c.classList.remove("drag-over"));
+
+  const pool = document.getElementById("quote-pool");
+  pool.innerHTML = "";
+  const shuffled = shuffle(NIVEL2_FRAGMENTOS.map((f,i)=>({...f, id:i})));
+  shuffled.forEach(frag=>{
+    const card = document.createElement("div");
+    card.className = "quote-card";
+    card.dataset.cat = frag.cat;
+    card.dataset.id = frag.id;
+    card.textContent = "\u201C" + frag.texto + "\u201D";
+    attachDrag(card);
+    pool.appendChild(card);
+  });
+}
+
+function attachDrag(card){
+  let offsetX=0, offsetY=0, ghost=null, startX=0, startY=0;
+
+  card.addEventListener("pointerdown", (e)=>{
+    if(card.classList.contains("placed")) return;
+    e.preventDefault();
+    card.setPointerCapture(e.pointerId);
+    const rect = card.getBoundingClientRect();
+    offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
+    startX = e.clientX; startY = e.clientY;
+
+    ghost = card.cloneNode(true);
+    ghost.classList.add("ghost-card");
+    ghost.style.width = rect.width+"px";
+    ghost.style.left = rect.left+"px";
+    ghost.style.top = rect.top+"px";
+    document.body.appendChild(ghost);
+    card.classList.add("dragging");
+
+    function onMove(ev){
+      ghost.style.left = (ev.clientX - offsetX)+"px";
+      ghost.style.top = (ev.clientY - offsetY)+"px";
+      document.querySelectorAll(".chest").forEach(ch=>{
+        const r = ch.getBoundingClientRect();
+        const over = ev.clientX>=r.left && ev.clientX<=r.right && ev.clientY>=r.top && ev.clientY<=r.bottom;
+        ch.classList.toggle("drag-over", over);
+      });
+    }
+    function onUp(ev){
+      card.removeEventListener("pointermove", onMove);
+      card.removeEventListener("pointerup", onUp);
+      card.removeEventListener("pointercancel", onUp);
+      let dropped = null;
+      document.querySelectorAll(".chest").forEach(ch=>{
+        const r = ch.getBoundingClientRect();
+        const over = ev.clientX>=r.left && ev.clientX<=r.right && ev.clientY>=r.top && ev.clientY<=r.bottom;
+        ch.classList.remove("drag-over");
+        if(over) dropped = ch;
+      });
+      ghost.remove(); ghost=null;
+      card.classList.remove("dragging");
+
+      if(dropped){
+        if(dropped.dataset.cat === card.dataset.cat){
+          card.classList.add("placed");
+          l2.placed++;
+          const countEl = dropped.querySelector(".chest-count");
+          const current = parseInt(countEl.textContent.split(" / ")[0])+1;
+          countEl.textContent = current+" / 3";
+          showToast("¡Fragmento bien clasificado!", "ok");
+          if(l2.placed === l2.total){
+            setTimeout(()=> advanceLevel(3), 600);
+          }
+        } else {
+          card.classList.add("wrong-shake");
+          showToast("Ese baúl no corresponde, intenta con otro", "bad");
+          setTimeout(()=> card.classList.remove("wrong-shake"), 450);
+        }
+      }
+    }
+    card.addEventListener("pointermove", onMove);
+    card.addEventListener("pointerup", onUp);
+    card.addEventListener("pointercancel", onUp);
+  });
+}
+
+/* ================================================================
+   NIVEL 3 — MÉTRICA
+   ================================================================ */
+let l3 = { q:0 };
+
+function initNivel3(){
+  l3 = { q:0 };
+  renderL3Question();
+}
+function renderL3Question(){
+  const data = NIVEL3_PREGUNTAS[l3.q];
+  document.getElementById("l3-progress").textContent = "Pregunta "+(l3.q+1)+" de "+NIVEL3_PREGUNTAS.length;
+  document.getElementById("l3-question").textContent = data.pregunta;
+  const wrap = document.getElementById("l3-options");
+  wrap.innerHTML = "";
+  const order = shuffle(data.opciones.map((o,i)=>({text:o, idx:i})));
+  order.forEach(opt=>{
+    const el = document.createElement("div");
+    el.className = "option-card";
+    el.textContent = opt.text;
+    el.addEventListener("click", ()=>{
+      if(wrap.dataset.locked) return;
+      wrap.dataset.locked = "1";
+      const isCorrect = opt.idx === data.correcta;
+      el.classList.add(isCorrect ? "correct" : "incorrect");
+      if(!isCorrect){
+        [...wrap.children].find(c=> c.textContent === data.opciones[data.correcta]).classList.add("correct");
+      }
+      showToast(isCorrect ? "¡Análisis correcto!" : "No es correcto, observa la carta acertada", isCorrect ? "ok":"bad");
+      setTimeout(()=>{
+        wrap.dataset.locked = "";
+        l3.q++;
+        if(l3.q < NIVEL3_PREGUNTAS.length){ renderL3Question(); }
+        else { advanceLevel(4); }
+      }, 1100);
+    });
+    wrap.appendChild(el);
+  });
+}
+
+/* ================================================================
+   NIVEL 4 — BATALLA DE TRIVIA (con cronómetro por pregunta)
+   ================================================================ */
+let l4 = { q:0, correct:0, timeLeft:0, timerId:null };
+const L4_SECONDS = 32; // segundos por pregunta — ajusta aquí si necesitas más o menos tiempo
+
+function initNivel4(){
+  l4 = { q:0, correct:0, timeLeft:L4_SECONDS, timerId:null };
+  document.getElementById("duel-score").textContent = "Aciertos: 0 / "+NIVEL4_TRIVIA.length;
+  renderL4Question();
+}
+function renderL4Question(){
+  clearInterval(l4.timerId);
+  l4.timeLeft = L4_SECONDS;
+  const bar = document.getElementById("duel-timer-bar");
+  bar.style.width = "100%";
+
+  const data = NIVEL4_TRIVIA[l4.q];
+  document.getElementById("duel-question").textContent = data.pregunta;
+  const wrap = document.getElementById("duel-options");
+  wrap.innerHTML = "";
+  wrap.dataset.locked = "";
+  const order = shuffle(data.opciones.map((o,i)=>({text:o, idx:i})));
+  order.forEach(opt=>{
+    const el = document.createElement("button");
+    el.className = "duel-opt";
+    el.textContent = opt.text;
+    el.addEventListener("click", ()=> resolveL4(el, opt.idx === data.correcta, data));
+    wrap.appendChild(el);
+  });
+
+  l4.timerId = setInterval(()=>{
+    l4.timeLeft -= 0.2;
+    bar.style.width = Math.max(0,(l4.timeLeft/L4_SECONDS*100))+"%";
+    if(l4.timeLeft <= 0){
+      clearInterval(l4.timerId);
+      if(!wrap.dataset.locked){
+        wrap.dataset.locked = "1";
+        showToast("¡Se acabó el tiempo!", "bad");
+        setTimeout(()=> nextL4(), 900);
+      }
+    }
+  }, 200);
+}
+function resolveL4(el, isCorrect, data){
+  const wrap = document.getElementById("duel-options");
+  if(wrap.dataset.locked) return;
+  wrap.dataset.locked = "1";
+  clearInterval(l4.timerId);
+  el.classList.add(isCorrect ? "correct" : "incorrect");
+  if(isCorrect){
+    l4.correct++;
+    document.getElementById("duel-score").textContent = "Aciertos: "+l4.correct+" / "+NIVEL4_TRIVIA.length;
+    showToast("¡Correcto!", "ok");
+  } else {
+    [...wrap.children][data.opciones.findIndex((o,i)=>i===data.correcta)];
+    [...wrap.children].forEach(c=>{ if(c.textContent === data.opciones[data.correcta]) c.classList.add("correct"); });
+    showToast("Incorrecto, la respuesta correcta se resalta", "bad");
+  }
+  setTimeout(()=> nextL4(), 1100);
+}
+function nextL4(){
+  l4.q++;
+  if(l4.q < NIVEL4_TRIVIA.length){ renderL4Question(); }
+  else { advanceLevel(5); }
+}
+
+/* ================================================================
+   NIVEL 5 — ROMPECABEZAS DE ORDEN (con botones subir/bajar, táctil)
+   ================================================================ */
+let l5 = { order:[] };
+
+function initNivel5(){
+  l5.order = shuffle(NIVEL5_ORDEN_CORRECTO.map((t,i)=>({ text:t, correctIndex:i })));
+  // asegura que no salga ya en orden correcto
+  if(l5.order.every((c,i)=> c.correctIndex === i)){
+    l5.order.reverse();
+  }
+  renderL5();
+}
+function renderL5(){
+  const list = document.getElementById("order-list");
+  list.innerHTML = "";
+  l5.order.forEach((item, i)=>{
+    const row = document.createElement("div");
+    row.className = "order-card";
+    row.innerHTML = `
+      <div class="order-num">${i+1}</div>
+      <div class="order-text">${item.text}</div>
+      <div class="order-btns">
+        <button data-dir="up" ${i===0 ? "disabled":""} aria-label="Subir">▲</button>
+        <button data-dir="down" ${i===l5.order.length-1 ? "disabled":""} aria-label="Bajar">▼</button>
+      </div>`;
+    row.querySelector('[data-dir="up"]').addEventListener("click", ()=> moveL5(i,-1));
+    row.querySelector('[data-dir="down"]').addEventListener("click", ()=> moveL5(i,1));
+    list.appendChild(row);
+  });
+}
+function moveL5(i, dir){
+  const j = i+dir;
+  if(j<0 || j>=l5.order.length) return;
+  [l5.order[i], l5.order[j]] = [l5.order[j], l5.order[i]];
+  renderL5();
+}
+document.getElementById("btn-check-order").addEventListener("click", ()=>{
+  const rows = document.querySelectorAll("#order-list .order-card");
+  const allCorrect = l5.order.every((c,i)=> c.correctIndex === i);
+  rows.forEach((row, i)=>{
+    row.classList.remove("correct-slot","wrong-slot");
+    row.classList.add(l5.order[i].correctIndex === i ? "correct-slot" : "wrong-slot");
+  });
+  if(allCorrect){
+    showToast("¡Orden perfecto! La patria ha sido rescatada", "ok");
+    setTimeout(()=> finishGame(), 900);
+  } else {
+    showToast("Aún no es el orden correcto, sigue intentando", "bad");
+    setTimeout(()=>{
+      rows.forEach(row=> row.classList.remove("wrong-slot"));
+    }, 700);
+  }
+});
+
+/* ================================================================
+   NAVEGACIÓN ENTRE NIVELES
+   ================================================================ */
+function advanceLevel(n){
+  gameState.currentLevel = n;
+  renderProgress();
+  goToScreen("screen-"+n);
+  if(n===2) initNivel2();
+  if(n===3) initNivel3();
+  if(n===4) initNivel4();
+  if(n===5) initNivel5();
+}
+
+/* ================================================================
+   VICTORIA, RANKING Y CONFETI
+   ================================================================ */
+function finishGame(){
+  stopTimer();
+  gameState.currentLevel = TOTAL_LEVELS + 1;
+  renderProgress();
+  document.querySelectorAll(".progress-dot").forEach(d=>{ d.classList.add("done"); d.classList.remove("current"); });
+  goToScreen("screen-victory");
+  saveAndRenderRanking(gameState.elapsedSeconds);
+  launchConfetti();
+}
+
+// Almacenamiento del ranking: intenta localStorage (funciona al abrir el archivo
+// normalmente en un navegador); si el entorno lo bloquea (p. ej. la vista previa
+// de artefactos en Claude.ai), usa una lista en memoria como respaldo automático.
+const RANKING_KEY = "rescata_patria_ranking_v1";
+let memoryRanking = [];
+
+function loadRanking(){
+  try{
+    const raw = localStorage.getItem(RANKING_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){
+    return memoryRanking;
+  }
+}
+function persistRanking(list){
+  try{
+    localStorage.setItem(RANKING_KEY, JSON.stringify(list));
+    return true;
+  }catch(e){
+    memoryRanking = list;
+    return false;
+  }
+}
+
+function saveAndRenderRanking(seconds){
+  const name = (gameState.playerName || ("Prócer #"+(Math.floor(Math.random()*900)+100)))
+               + (gameState.playerCurso ? " · "+gameState.playerCurso : "");
+  let list = loadRanking();
+  const entry = { name, seconds, ts:Date.now() };
+  list.push(entry);
+  list.sort((a,b)=> a.seconds - b.seconds);
+  list = list.slice(0,5);
+  const persisted = persistRanking(list);
+
+  const body = document.getElementById("ranking-body");
+  body.innerHTML = "";
+  list.forEach((r,i)=>{
+    const tr = document.createElement("tr");
+    if(r.ts === entry.ts && r.seconds === entry.seconds) tr.classList.add("you");
+    tr.innerHTML = `<td>${i+1}</td><td>${r.name}${r.ts===entry.ts && r.seconds===entry.seconds ? " (tú)":""}</td><td>${formatTime(r.seconds)}</td>`;
+    body.appendChild(tr);
+  });
+
+  document.getElementById("ranking-note").textContent = persisted
+    ? "Tu tiempo se guardó en este navegador y se conservará la próxima vez que juegues aquí."
+    : "Este entorno no permite guardar datos entre sesiones; el ranking se mantiene solo durante esta partida.";
+}
+
+document.getElementById("btn-replay").addEventListener("click", ()=>{
+  gameState.currentLevel = 0;
+  gameState.elapsedSeconds = 0;
+  document.getElementById("timer-display").textContent = "00:00";
+  renderProgress();
+  goToScreen("screen-intro");
+});
+
+function launchConfetti(){
+  const canvas = document.getElementById("confetti-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const colors = ["#a31621","#1c3a5e","#2f5138","#d9ab4a","#f1e6c8"];
+  let particles = [];
+  for(let i=0;i<140;i++){
+    particles.push({
+      x: Math.random()*canvas.width, y: -20 - Math.random()*canvas.height*0.5,
+      w: 6+Math.random()*6, h: 8+Math.random()*8,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      speed: 2+Math.random()*3, rot: Math.random()*360, rotSpeed:(Math.random()-0.5)*8,
+      drift: (Math.random()-0.5)*2
+    });
+  }
+  let frames = 0;
+  function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.y += p.speed; p.x += p.drift; p.rot += p.rotSpeed;
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      ctx.restore();
+    });
+    frames++;
+    if(frames < 230){ requestAnimationFrame(tick); }
+    else { ctx.clearRect(0,0,canvas.width,canvas.height); }
+  }
+  tick();
+  window.addEventListener("resize", ()=>{ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }, { once:true });
+}
+
+/* Inicializa barras de progreso al cargar */
+renderProgress();
+</script>
+</body>
+</html>
